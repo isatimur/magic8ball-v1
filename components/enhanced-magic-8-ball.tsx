@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
-import { motion, useAnimation } from 'framer-motion'
+import { motion, useAnimation, AnimationControls } from 'framer-motion'
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -25,7 +25,7 @@ interface HistoryItem {
   likes: number;
   rating: number;
 }
-const Magic8Ball = ({ answer, theme, shake, isShaking, shakeControls, showAnswer }: { answer: string; theme: string; shake: () => void; isShaking: boolean; shakeControls: any, showAnswer: boolean }) => {
+const Magic8Ball = ({ answer, theme, shake, isShaking, shakeControls, showAnswer }: { answer: string; theme: string; shake: () => void; isShaking: boolean; shakeControls: AnimationControls; showAnswer: boolean }) => {
 
   const ballColors = {
     classic: 'bg-blue-900',
@@ -344,6 +344,13 @@ export function EnhancedMagic_8Ball() {
   const [showAnswer, setShowAnswer] = useState(false)
   const shakeControls = useAnimation()
 
+  const playSound = useCallback((soundName: string) => {
+    if (isSoundOn) {
+      const audio = new Audio(`/assets/audio/${soundName}.mp3`)
+      audio.play()
+    }
+  }, [isSoundOn])
+
   const handleShakeAndAsk = useCallback(async (customQuestion = '') => {
     const questionToAsk = customQuestion || question
     if (questionToAsk.trim() === '' || isShaking) return
@@ -461,7 +468,7 @@ export function EnhancedMagic_8Ball() {
         return prevQuestions
       }
     })
-  }, [question, isShaking, shakeControls, addAnswer, setHistory, setUser, setPopularQuestions, settings.animationSpeed])
+  }, [question, isShaking, playSound, shakeControls])
 
   useEffect(() => {
     const loadHistory = async () => {
@@ -487,13 +494,6 @@ export function EnhancedMagic_8Ball() {
   useEffect(() => {
     localStorage.setItem('user', JSON.stringify(user))
   }, [user])
-
-  const playSound = (soundName: string) => {
-    if (isSoundOn) {
-      const audio = new Audio(`/assets/audio/${soundName}.mp3`)
-      audio.play()
-    }
-  }
 
   const handleShare = () => {
     const shareText = `I just asked the Magic 8 Ball: "${question}"\nThe answer was: "${answer}"\nI'm a Level ${user.level} Seeker! Can you beat my level?\nTry it yourself!`
